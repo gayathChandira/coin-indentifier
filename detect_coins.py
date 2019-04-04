@@ -3,6 +3,7 @@ import numpy as np
 import argparse
 import cv2
 
+
 # construct argument parser and parse arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-i", "--image", required=True, help="path to image")
@@ -23,6 +24,7 @@ gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
 
 # improve contrast accounting for differences in lighting conditions:
+# clahe = Contrast Limited Adaptive Histogram Equalization
 clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
 cl1 = clahe.apply(gray)
 
@@ -30,8 +32,8 @@ cl1 = clahe.apply(gray)
 # contribute more "weight" to the average, first argument is the source image,
 # second argument is kernel size, third one is sigma (0 for autodetect)
 # we use a 7x7 kernel and let OpenCV detect sigma
-blurred = cv2.GaussianBlur(cl1, (7, 7), 0)
-
+#blurred = cv2.GaussianBlur(cl1, (5, 5), 0)
+blurred = cv2.medianBlur(cl1, 5);
 #cv2.HoughCircles will detect circles in the picture.
 circles = cv2.HoughCircles(blurred, cv2.HOUGH_GRADIENT, dp=2.2, minDist=100,
                            param1=200, param2=100, minRadius=50, maxRadius=120)
@@ -78,16 +80,16 @@ while i < len(diameter):
     (x, y) = coordinates[i]
     t = "Unknown"
 
-    if math.isclose(d, 24.25, abs_tol=1.00):
+    if math.isclose(d, 25.00, abs_tol=1.00):
         t = "Rs.2"
 
-    elif math.isclose(d, 22.35, abs_tol=1.00):
+    elif math.isclose(d, 22.55, abs_tol=1.45):
         t = "Rs.10"
 
-    elif math.isclose(d, 20.75, abs_tol=1.25):
+    elif math.isclose(d, 19.85, abs_tol=1.25):
         t = "Rs.5"
 
-    elif math.isclose(d, 18.00, abs_tol=1.5):
+    elif math.isclose(d, 17.00, abs_tol=1.5):
         t = "Rs.1"
 
 
