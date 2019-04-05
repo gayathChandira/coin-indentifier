@@ -1,4 +1,4 @@
-import math
+i9mport math
 import numpy as np
 import argparse
 import cv2
@@ -22,7 +22,6 @@ output = image.copy()
 # convert image to grayscale
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-
 # improve contrast accounting for differences in lighting conditions:
 # clahe = Contrast Limited Adaptive Histogram Equalization
 clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
@@ -33,14 +32,13 @@ cl1 = clahe.apply(gray)
 # second argument is kernel size, third one is sigma (0 for autodetect)
 # we use a 7x7 kernel and let OpenCV detect sigma
 #blurred = cv2.GaussianBlur(cl1, (5, 5), 0)
-blurred = cv2.medianBlur(cl1, 5);
+blurred = cv2.medianBlur(cl1, 7);
+
 #cv2.HoughCircles will detect circles in the picture.
 circles = cv2.HoughCircles(blurred, cv2.HOUGH_GRADIENT, dp=2.2, minDist=100,
                            param1=200, param2=100, minRadius=50, maxRadius=120)
 
-
 diameter = []
-materials = []
 coordinates = []
 
 count = 0
@@ -51,6 +49,7 @@ if circles is not None:
 
     # convert coordinates and radii to integers
     circles = np.round(circles[0, :]).astype("int")
+
     #print(circles)
     # loop over coordinates and radii of the circles
     for (x, y, d) in circles:
@@ -66,13 +65,11 @@ if circles is not None:
 # get biggest diameter
 biggest = max(diameter)
 i = diameter.index(biggest)
-print(materials)
+
 print('Maximum diameter: ', biggest)
 
 # scale everything according to maximum diameter
 diameter = [x / biggest * 25 for x in diameter]
-
-
 i = 0
 
 while i < len(diameter):
@@ -83,22 +80,18 @@ while i < len(diameter):
     if math.isclose(d, 25.00, abs_tol=1.00):
         t = "Rs.2"
 
-    elif math.isclose(d, 22.55, abs_tol=1.45):
+    elif math.isclose(d, 23.55, abs_tol=1.00):
         t = "Rs.10"
 
-    elif math.isclose(d, 19.85, abs_tol=1.25):
+    elif math.isclose(d, 20.00, abs_tol=2.25):
         t = "Rs.5"
 
     elif math.isclose(d, 17.00, abs_tol=1.5):
         t = "Rs.1"
 
-
     # write result on output image
     cv2.putText(output, t,
                 (x - 40, y + 22), cv2.FONT_HERSHEY_PLAIN,
-                1.5, (255, 255, 255), thickness=2, lineType=cv2.LINE_AA)
-    cv2.putText(output, str(d),
-                (x - 40, y + 40), cv2.FONT_HERSHEY_PLAIN,
                 1.5, (255, 255, 255), thickness=2, lineType=cv2.LINE_AA)
     i += 1
 
@@ -107,7 +100,6 @@ d = 600 / output.shape[1]
 dim = (768, int(output.shape[0] * d))
 image = cv2.resize(image, dim, interpolation=cv2.INTER_AREA)
 output = cv2.resize(output, dim, interpolation=cv2.INTER_AREA)
-
 
 # show output and wait for key to terminate program
 cv2.imshow("Output", np.hstack([image, output]))
